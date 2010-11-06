@@ -44,7 +44,9 @@ module Capybara
     end
 
     def responsive?
-      res = Net::HTTP.start(host, @port) { |http| http.get('/__identify__') }
+      res = Net::HTTP.start(host, @port) { |http| http.get('/') }
+
+      return true # if there was no connection error, it's up, dammit!
 
       if res.is_a?(Net::HTTPSuccess) or res.is_a?(Net::HTTPRedirection)
         return res.body == @app.object_id.to_s
@@ -68,7 +70,7 @@ module Capybara
           Capybara.timeout(10) { if responsive? then true else sleep(0.5) and false end }
         end
       end
-    rescue Timeout::Error
+    rescue TimeoutError
       puts "Rack application timed out during boot"
       exit
     else
